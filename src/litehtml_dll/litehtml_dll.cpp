@@ -39,7 +39,8 @@ namespace litehtml {
 	}
 	void DocumentContainerAdapter::draw_list_marker(litehtml::uint_ptr hdc, const litehtml::list_marker & marker)
 	{
-		m_docintf->DrawListMarker(marker);
+        Microsoft::WRL::ComPtr<IListMarker> obj = Microsoft::WRL::Make<ListMarkerAdapter>(marker);
+		m_docintf->DrawListMarker(obj.Get());
 	}
 	void DocumentContainerAdapter::load_image(const litehtml::tchar_t * src, const litehtml::tchar_t * baseurl, bool redraw_on_ready)
 	{
@@ -51,7 +52,8 @@ namespace litehtml {
 	}
 	void DocumentContainerAdapter::draw_background(litehtml::uint_ptr hdc, const litehtml::background_paint & bg)
 	{
-		m_docintf->DrawBackground(bg);
+        Microsoft::WRL::ComPtr<IBackgroundPaint> obj = Microsoft::WRL::Make<BackgroundPaintAdapter>(bg);
+		m_docintf->DrawBackground(obj.Get());
 	}
 	void DocumentContainerAdapter::draw_borders(litehtml::uint_ptr hdc, const litehtml::borders & borders, const litehtml::position & draw_pos, bool root)
 	{
@@ -168,5 +170,79 @@ namespace litehtml {
 		(*result)->AddRef();
 		return S_OK;
 	}
+    const tchar_t * __stdcall ListMarkerAdapter::Image()
+    {
+        return m_data.image.c_str();
+    }
+    const tchar_t * __stdcall ListMarkerAdapter::BaseUrl()
+    {
+        return m_data.baseurl;
+    }
+    litehtml::web_color __stdcall ListMarkerAdapter::Color()
+    {
+        return m_data.color;
+    }
+    const litehtml::position & __stdcall ListMarkerAdapter::Position()
+    {
+        return m_data.pos;
+    }
+    ListMarkerAdapter::ListMarkerAdapter(const litehtml::list_marker& data) : m_data(data)
+    {
+    }
+    const tchar_t * __stdcall BackgroundPaintAdapter::Image()
+    {
+        return m_data.image.c_str();
+    }
+    const tchar_t * __stdcall BackgroundPaintAdapter::BaseUrl()
+    {
+        return m_data.baseurl.c_str();
+    }
+    background_attachment __stdcall BackgroundPaintAdapter::Attachment()
+    {
+        return m_data.attachment;
+    }
+    background_repeat __stdcall BackgroundPaintAdapter::Repeat()
+    {
+        return m_data.repeat;
+    }
+    web_color __stdcall BackgroundPaintAdapter::Color()
+    {
+        return m_data.color;
+    }
+    position * __stdcall BackgroundPaintAdapter::ClipBox()
+    {
+        return &m_data.clip_box;
+    }
+    position * __stdcall BackgroundPaintAdapter::OriginBox()
+    {
+        return &m_data.origin_box;
+    }
+    position * __stdcall BackgroundPaintAdapter::BorderBox()
+    {
+        return &m_data.border_box;
+    }
+    border_radiuses * __stdcall BackgroundPaintAdapter::BorderRadius()
+    {
+        return &m_data.border_radius;
+    }
+    size __stdcall BackgroundPaintAdapter::ImageSize()
+    {
+        return m_data.image_size;
+    }
+    int __stdcall BackgroundPaintAdapter::PositionX()
+    {
+        return m_data.position_x;
+    }
+    int __stdcall BackgroundPaintAdapter::PositionY()
+    {
+        return m_data.position_y;
+    }
+    bool __stdcall BackgroundPaintAdapter::IsRoot()
+    {
+        return m_data.is_root;
+    }
+    BackgroundPaintAdapter::BackgroundPaintAdapter(const background_paint & data) : m_data(data)
+    {
+    }
 }
 
